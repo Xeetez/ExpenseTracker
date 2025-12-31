@@ -190,7 +190,30 @@ h2{
     border-right-color: #dc2626;
 }
 
-.transaction .delete-btn{
+.transaction input[type="text"]{
+    width: 60%;
+    margin-right: 10px;
+}
+
+.transaction input[type="number"]{
+    width: 30%;
+}
+.transaction .buttons{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.transaction i{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.transaction .delete-btn,
+.transaction .edit-btn
+{
     background: none;
     border: none;
     color: #dc2626;
@@ -204,14 +227,19 @@ h2{
     
 }
 
-.transaction:hover .delete-btn{
+.transaction:hover .delete-btn,
+.transaction:hover .edit-btn
+{
     opacity: 1;
  }
 
+.transaction .edit-btn:hover,
  .transaction .delete-btn:hover{
     background-color: #fee2e2;
     transform: scale(1.1);
  }
+
+
 
  .form-container{
     background: linear-gradient(135deg, #f6f8fb, #f1f4f8);
@@ -262,11 +290,24 @@ input:hover{
     border-color: #cbd5e0;  
 }
 
+
 small{
     color: #718096;
-    font-size: 0.875rem;
+    font-size: 1rem;
     margin-top: 4px;
     display: block;
+}
+
+select{
+    border-radius: 8px; 
+    font-size: 1rem;
+    padding: 10px 16px;
+    border: 2px solid #e2e8f0;
+    color: #667eea;
+}
+
+select option{
+    background-color: red;
 }
 
 button[type="submit"]{

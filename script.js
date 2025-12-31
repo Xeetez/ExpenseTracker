@@ -5,6 +5,7 @@ const transactionListEl = document.getElementById('transaction-list');
 const transactionFormEl = document.getElementById('transaction-form');
 const descriptionInputEl = document.getElementById('description');
 const amountInputEl = document.getElementById('amount');
+const selectOption = document.getElementById('expense-type');
 
 // get trasactions from local storage
 let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
@@ -16,17 +17,30 @@ function addTransaction(e){
 
     // form values
     const description = descriptionInputEl.value.trim();
-    const amount = parseFloat(amountInputEl.value);
+    const operator = selectOption.value;
 
-    transactions.push({id: Date.now().toString(), description, amount});
+    let amount = parseFloat(amountInputEl.value);
 
-    localStorage.setItem('transactions', JSON.stringify(transactions));
+    operator === '+' ? amount :  amount = -amount;
+    
 
-    updateTransactionLists();
-    updateSummary();
+    const id = Date.now();
+    
+
+    saveExpenses(id, description, amount);
+    
 
     transactionFormEl.reset();
 
+}
+
+function saveExpenses(id, description, amount){
+    transactions.push({id, description, amount});
+
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+    
+    updateTransactionLists();
+    updateSummary();
 }
 
 function updateTransactionLists(){
@@ -45,16 +59,23 @@ function updateTransactionLists(){
 
 function createTransactionElement(transaction){
     const li = document.createElement('li');
+    li.id = transaction.id;
     li.classList.add('transaction');
+    
 
     li.classList.add(transaction.amount>0 ? 'income' : 'expnense');
 
     li.innerHTML = `
-    <span>${transaction.description}</span>
+    <span class="description-span">${transaction.description}</span>
 
-    <span>${formatCurrency(transaction.amount)}
-        <buton class="delete-btn" onclick="removeTransaction(${transaction.id})">x</button>
+    <span class="amount-span">
+    ${formatCurrency(transaction.amount)}
     </span>
+
+    <div class="buttons">
+        <i class="fa-regular fa-pen-to-square edit-btn" onclick = "edit(event ,${transaction.id})"></i>
+        <i class="fa-regular fa-trash-can delete-btn" onclick="removeTransaction(${transaction.id})"></i>
+    </div>
     `;
 
     return li;
@@ -83,9 +104,7 @@ function formatCurrency(number){
 
 function removeTransaction(id){
     //filter the item to delete
-    console.log('iii')
     transactions = transactions.filter(transaction => transaction.id.toString() !== id.toString());
-    console.log(transactions, id)
 
     localStorage.setItem("transactions", JSON.stringify(transactions));
 
@@ -93,7 +112,62 @@ function removeTransaction(id){
     updateSummary();
 }
 
-// initial call functions
+function edit(e,id){
 
+   
+    const targetedList = e.target.closest('.transaction');
+    if(!targetedList) return;
+
+    const description = targetedList.querySelector('.description-span');
+    const descText = description.innerText;
+
+    const amnt = targetedList.querySelector('.amount-span');
+    const amount = amnt.innerText.replace(/[\$,]/g, '');
+    
+    const editButton = targetedList.querySelector('.edit-btn');
+
+    const inputElForDesc = document.createElement('input');
+    inputElForDesc.type= 'text';
+    inputElForDesc.value = description.innerText;
+    inputElForDesc.classList.add('description-input');
+
+    const inputElForAmount = document.createElement('input');
+    inputElForAmount.type= 'number';
+    inputElForAmount.value = amount;
+    inputElForAmount.classList.add('amount-input');
+
+    description.replaceWith(inputElForDesc);
+    amnt.replaceWith(inputElForAmount);
+    editButton.classList.replace('fa-regular', 'fa-solid');
+    
+    editButton.classList.replace('fa-pen-to-square', 'fa-check');
+
+
+    editButton.onclick = () => {
+        let desc = targetedList.querySelector('.description-input').value;
+        desc.trim() === '' ?  desc = descText : '';
+        let amnt = targetedList.querySelector('.amount-input').value;
+        amnt.trim()==='' ? amnt = amount : '';
+
+
+        transactions = transactions.map(el => {
+            if(el.id === id){
+                el.description = desc;
+                el.amount = parseFloat(amnt);
+            }
+            return el;
+        })
+        localStorage.setItem('transactions', JSON.stringify(transactions));
+        updateTransactionLists();
+        updateSummary();
+        
+
+    }
+        
+    
+
+}
+
+// initial call functions
 updateTransactionLists();
 updateSummary();
